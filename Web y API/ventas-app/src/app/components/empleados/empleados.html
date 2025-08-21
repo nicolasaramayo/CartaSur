@@ -1,0 +1,457 @@
+<div class="container-fluid">
+  
+
+  
+  <!-- Punto 4: Mostrar fecha con más ventas -->
+@if (fechaConMasVentas) {
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="alert alert-info d-flex align-items-center">
+        <i class="fas fa-chart-line fa-2x me-3"></i>
+        <div>
+          <h5 class="alert-heading mb-1">Punto 2 - Fecha con más ventas</h5>
+          <p class="mb-0">
+            <strong>{{ fechaConMasVentas.mensaje }}</strong>
+          </p>
+          <small class="text-muted">
+            Fecha: {{ formatearFecha(fechaConMasVentas.fecha) }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+  <!-- Punto 6: API Externa -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+          <i class="fas fa-external-link-alt me-2"></i>
+          Punto 6 - API Externa
+        </h5>
+
+        <button 
+          class="btn btn-outline-primary"
+          (click)="consultarApiExterna()"
+          [disabled]="loadingDummy">
+          @if (loadingDummy) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Consultando...
+          } @else {
+            <i class="fas fa-sync me-2"></i>
+            Consultar API
+            {{ datosDummy ? ' (Actualizar)' : '' }}
+          }
+        </button>
+      </div>
+
+      @if (datosDummy) {
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6><i class="fas fa-user me-2"></i>Datos</h6>
+              <ul class="list-unstyled">
+                <li><strong>datos:</strong> {{ datosDummy}}</li>
+                
+              </ul>
+            </div>
+          </div>
+          <div class="mt-2">
+            <small class="text-muted">
+              <i class="fas fa-clock me-1"></i>
+              Última consulta: {{ datosDummy.timestamp | date:'medium' }}
+            </small>
+          </div>
+        </div>
+      } @else if (!loadingDummy) {
+        <div class="card-body text-center text-muted">
+          <i class="fas fa-info-circle fa-2x mb-2"></i>
+          <p>Haga clic en "Consultar API" para obtener datos de la API externa</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+  <!-- Punto 5: Gestión de Empleados -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card shadow">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="fas fa-users-cog me-2"></i>
+            Punto 5 - Gestión de Empleados
+          </h5>
+          <div class="d-flex gap-2">
+            <button 
+              class="btn btn-success"
+              (click)="toggleFormulario()">
+              <i class="fas fa-plus me-2"></i>
+              Agregar Empleado
+            </button>
+          </div>
+        </div>
+        
+        <div class="card-body">
+          <!-- Loading State -->
+          <div *ngIf="loadingState.loading" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="mt-2 text-muted">Cargando empleados...</p>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="loadingState.error" class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ loadingState.error }}
+          </div>
+
+          <!-- Formulario de Nuevo Empleado -->
+          <div *ngIf="mostrarFormulario" class="row mb-4">
+            <div class="col-12">
+              <div class="card bg-light">
+                <div class="card-header">
+                  <h6 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Agregar Nuevo Empleado
+                  </h6>
+                </div>
+                <div class="card-body">
+                  <form (ngSubmit)="crearEmpleado()" #empleadoForm="ngForm">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input 
+                          type="text" 
+                          class="form-control" 
+                          id="nombre"
+                          [(ngModel)]="nuevoEmpleado.nombre" 
+                          name="nombre"
+                          required
+                          placeholder="Ingrese el nombre">
+                      </div>
+                      <div class="col-md-4">
+                        <label for="apellido" class="form-label">Apellido</label>
+                        <input 
+                          type="text" 
+                          class="form-control" 
+                          id="apellido"
+                          [(ngModel)]="nuevoEmpleado.apellido" 
+                          name="apellido"
+                          required
+                          placeholder="Ingrese el apellido">
+                      </div>
+                      <div class="col-md-4">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select 
+                          class="form-select" 
+                          id="estado"
+                          [(ngModel)]="nuevoEmpleado.estado" 
+                          name="estado"
+                          required>
+                          <option value="activo">Activo</option>
+                          <option value="inactivo">Inactivo</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row mt-3">
+                      <div class="col-12">
+                        <button 
+                          type="submit" 
+                          class="btn btn-success me-2"
+                          [disabled]="!empleadoForm.form.valid || loadingState.loading">
+                          <span *ngIf="loadingState.loading" class="spinner-border spinner-border-sm me-2"></span>
+                          <i *ngIf="!loadingState.loading" class="fas fa-save me-2"></i>
+                          {{ loadingState.loading ? 'Guardando...' : 'Guardar' }}
+                        </button>
+                        <button 
+                          type="button" 
+                          class="btn btn-secondary"
+                          (click)="toggleFormulario()">
+                          <i class="fas fa-times me-2"></i>
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtros -->
+          <div class="row mb-3" *ngIf="!loadingState.loading">
+            <div class="col-md-8">
+              <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="filtro" id="todos" 
+                       [checked]="filtroEstado === 'todos'" 
+                       (change)="cambiarFiltro('todos')">
+                <label class="btn btn-outline-primary" for="todos">
+                  <i class="fas fa-users me-1"></i>
+                  Todos ({{ empleados.length }})
+                </label>
+
+                <input type="radio" class="btn-check" name="filtro" id="activos" 
+                       [checked]="filtroEstado === 'activo'" 
+                       (change)="cambiarFiltro('activo')">
+                <label class="btn btn-outline-success" for="activos">
+                  <i class="fas fa-user-check me-1"></i>
+                  Activos ({{ empleadosActivos.length }})
+                </label>
+
+                <input type="radio" class="btn-check" name="filtro" id="inactivos" 
+                       [checked]="filtroEstado === 'inactivo'" 
+                       (change)="cambiarFiltro('inactivo')">
+                <label class="btn btn-outline-warning" for="inactivos">
+                  <i class="fas fa-user-times me-1"></i>
+                  Inactivos ({{ empleadosInactivos.length }})
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de Empleados -->
+          <div class="row" *ngIf="!loadingState.loading">
+            <!-- Empleados Activos -->
+            <div class="col-md-6" *ngIf="filtroEstado === 'todos' || filtroEstado === 'activo'">
+              <div class="empleados-section">
+                <h6 class="section-title text-success">
+                  <i class="fas fa-user-check me-2"></i>
+                  Empleados Activos ({{ empleadosActivos.length }})
+                </h6>
+                <div class="empleados-container">
+                  <div *ngFor="let empleado of empleadosActivos; trackBy: trackByEmpleado" 
+                       class="empleado-card active-employee">
+                    <!-- Modo Vista -->
+                    <div *ngIf="editandoEmpleado?.idEmpleado !== empleado.idEmpleado" 
+                         class="empleado-info">
+                      <div class="empleado-header">
+                        <h6 class="empleado-nombre">
+                          <i class="fas fa-user me-2"></i>
+                          {{ empleado.nombreCompleto }}
+                        </h6>
+                        <span class="badge bg-success">{{ empleado.estado }}</span>
+                      </div>
+                      <div class="empleado-actions">
+                        <button class="btn btn-sm btn-outline-primary me-1" 
+                                (click)="editarEmpleado(empleado)"
+                                title="Editar empleado">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                (click)="eliminarEmpleado(empleado)"
+                                title="Eliminar empleado">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Modo Edición -->
+                    <div *ngIf="editandoEmpleado?.idEmpleado === empleado.idEmpleado" 
+                         class="empleado-edit">
+                      <form (ngSubmit)="actualizarEmpleado()" #editForm="ngForm">
+                        <div class="row g-2">
+                          <div class="col-6">
+                            <input type="text" 
+                                   class="form-control form-control-sm" 
+                                   [(ngModel)]="empleadoEditado.nombre"
+                                   name="editNombre"
+                                   required
+                                   placeholder="Nombre">
+                          </div>
+                          <div class="col-6">
+                            <input type="text" 
+                                   class="form-control form-control-sm" 
+                                   [(ngModel)]="empleadoEditado.apellido"
+                                   name="editApellido"
+                                   required
+                                   placeholder="Apellido">
+                          </div>
+                          <div class="col-12">
+                            <select class="form-select form-select-sm" 
+                                    [(ngModel)]="empleadoEditado.estado"
+                                    name="editEstado"
+                                    required>
+                              <option value="activo">Activo</option>
+                              <option value="inactivo">Inactivo</option>
+                            </select>
+                          </div>
+                          <div class="col-12">
+                            <div class="btn-group w-100">
+                              <button type="submit" 
+                                      class="btn btn-success btn-sm"
+                                      [disabled]="!editForm.form.valid">
+                                <i class="fas fa-check"></i>
+                              </button>
+                              <button type="button" 
+                                      class="btn btn-secondary btn-sm"
+                                      (click)="cancelarEdicion()">
+                                <i class="fas fa-times"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!-- Sin empleados activos -->
+                  <div *ngIf="empleadosActivos.length === 0" class="empty-state">
+                    <i class="fas fa-user-slash fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No hay empleados activos</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empleados Inactivos -->
+            <div class="col-md-6" *ngIf="filtroEstado === 'todos' || filtroEstado === 'inactivo'">
+              <div class="empleados-section">
+                <h6 class="section-title text-warning">
+                  <i class="fas fa-user-times me-2"></i>
+                  Empleados Inactivos ({{ empleadosInactivos.length }})
+                </h6>
+                <div class="empleados-container">
+                  <div *ngFor="let empleado of empleadosInactivos; trackBy: trackByEmpleado" 
+                       class="empleado-card inactive-employee">
+                    <!-- Modo Vista -->
+                    <div *ngIf="editandoEmpleado?.idEmpleado !== empleado.idEmpleado" 
+                         class="empleado-info">
+                      <div class="empleado-header">
+                        <h6 class="empleado-nombre">
+                          <i class="fas fa-user me-2"></i>
+                          {{ empleado.nombreCompleto }}
+                        </h6>
+                        <span class="badge bg-warning text-dark">{{ empleado.estado }}</span>
+                      </div>
+                      <div class="empleado-actions">
+                        <button class="btn btn-sm btn-outline-primary me-1" 
+                                (click)="editarEmpleado(empleado)"
+                                title="Editar empleado">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                (click)="eliminarEmpleado(empleado)"
+                                title="Eliminar empleado">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Modo Edición -->
+                    <div *ngIf="editandoEmpleado?.idEmpleado === empleado.idEmpleado" 
+                         class="empleado-edit">
+                      <form (ngSubmit)="actualizarEmpleado()" #editForm2="ngForm">
+                        <div class="row g-2">
+                          <div class="col-6">
+                            <input type="text" 
+                                   class="form-control form-control-sm" 
+                                   [(ngModel)]="empleadoEditado.nombre"
+                                   name="editNombre2"
+                                   required
+                                   placeholder="Nombre">
+                          </div>
+                          <div class="col-6">
+                            <input type="text" 
+                                   class="form-control form-control-sm" 
+                                   [(ngModel)]="empleadoEditado.apellido"
+                                   name="editApellido2"
+                                   required
+                                   placeholder="Apellido">
+                          </div>
+                          <div class="col-12">
+                            <select class="form-select form-select-sm" 
+                                    [(ngModel)]="empleadoEditado.estado"
+                                    name="editEstado2"
+                                    required>
+                              <option value="activo">Activo</option>
+                              <option value="inactivo">Inactivo</option>
+                            </select>
+                          </div>
+                          <div class="col-12">
+                            <div class="btn-group w-100">
+                              <button type="submit" 
+                                      class="btn btn-success btn-sm"
+                                      [disabled]="!editForm2.form.valid">
+                                <i class="fas fa-check"></i>
+                              </button>
+                              <button type="button" 
+                                      class="btn btn-secondary btn-sm"
+                                      (click)="cancelarEdicion()">
+                                <i class="fas fa-times"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                  <!-- Sin empleados inactivos -->
+                  <div *ngIf="empleadosInactivos.length === 0" class="empty-state">
+                    <i class="fas fa-user-check fa-2x text-muted mb-2"></i>
+                    <p class="text-muted">No hay empleados inactivos</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vista filtrada individual -->
+            <div class="col-12" *ngIf="filtroEstado !== 'todos'">
+              <div class="row">
+                <div class="col-md-4" *ngFor="let empleado of empleadosFiltrados; trackBy: trackByEmpleado">
+                  <div class="empleado-card" 
+                       [class.active-employee]="empleado.estado === 'activo'"
+                       [class.inactive-employee]="empleado.estado === 'inactivo'">
+                    <div class="empleado-info">
+                      <div class="empleado-header">
+                        <h6 class="empleado-nombre">
+                          <i class="fas fa-user me-2"></i>
+                          {{ empleado.nombreCompleto }}
+                        </h6>
+                        <span class="badge" 
+                              [class.bg-success]="empleado.estado === 'activo'"
+                              [class.bg-warning]="empleado.estado === 'inactivo'"
+                              [class.text-dark]="empleado.estado === 'inactivo'">
+                          {{ empleado.estado }}
+                        </span>
+                      </div>
+                      <div class="empleado-actions">
+                        <button class="btn btn-sm btn-outline-primary me-1" 
+                                (click)="editarEmpleado(empleado)"
+                                title="Editar empleado">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" 
+                                (click)="eliminarEmpleado(empleado)"
+                                title="Eliminar empleado">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Estado vacío -->
+            <div class="col-12" *ngIf="empleados.length === 0 && !loadingState.loading">
+              <div class="empty-state-main text-center py-5">
+                <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No hay empleados registrados</h4>
+                <p class="text-muted">Agregue el primer empleado haciendo clic en "Agregar Empleado"</p>
+                <button class="btn btn-primary" (click)="toggleFormulario()">
+                  <i class="fas fa-plus me-2"></i>
+                  Agregar Primer Empleado
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
