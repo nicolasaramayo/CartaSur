@@ -1,0 +1,113 @@
+-- Script base de datos normalizada
+
+-- Tabla EMPLEADOS
+CREATE TABLE EMPLEADOS (
+    ID_EMPLEADO int IDENTITY(1,1) PRIMARY KEY,
+    NOMBRE varchar(50) NOT NULL,
+    APELLIDO varchar(50) NOT NULL,
+    ESTADO varchar(10) NOT NULL DEFAULT 'activo' CHECK (ESTADO IN ('activo', 'inactivo'))
+);
+
+-- Tabla CLIENTES
+CREATE TABLE CLIENTES (
+    ID_CLIENTE int IDENTITY(1,1) PRIMARY KEY,
+    DNI varchar(10) NOT NULL UNIQUE,
+    NOMBRE varchar(50) NOT NULL,
+    APELLIDO varchar(50) NOT NULL,
+    DIRECCION_ENVIO varchar(100) NOT NULL
+);
+
+-- Tabla SUCURSALES
+CREATE TABLE SUCURSALES (
+    ID_SUCURSAL int IDENTITY(1,1) PRIMARY KEY,
+    NOMBRE varchar(100) NOT NULL,
+    DIRECCION varchar(100) NOT NULL
+);
+
+-- Tabla PRODUCTOS
+CREATE TABLE PRODUCTOS (
+    ID_PRODUCTO int IDENTITY(1,1) PRIMARY KEY,
+    NOMBRE varchar(50) NOT NULL,
+    PRECIO_UNITARIO decimal(10,2) NOT NULL
+);
+
+-- tabla VENTAS (normalizada)
+CREATE TABLE VENTAS_NORM (
+    ID_VENTA int IDENTITY(1,1) PRIMARY KEY,
+    FECHA_VENTA datetime NOT NULL DEFAULT GETDATE(),
+    ID_EMPLEADO int NOT NULL,
+    ID_CLIENTE int NOT NULL,
+    ID_SUCURSAL int NOT NULL,
+    IMPORTE_TOTAL decimal(10,2) NOT NULL,
+    CONSTRAINT FK_Ventas_Empleado FOREIGN KEY (ID_EMPLEADO) REFERENCES EMPLEADOS(ID_EMPLEADO),
+    CONSTRAINT FK_Ventas_Cliente FOREIGN KEY (ID_CLIENTE) REFERENCES CLIENTES(ID_CLIENTE),
+    CONSTRAINT FK_Ventas_Sucursal FOREIGN KEY (ID_SUCURSAL) REFERENCES SUCURSALES(ID_SUCURSAL)
+);
+
+-- tabla DETALLE_VENTAS
+CREATE TABLE DETALLE_VENTAS (
+    ID_DETALLE int IDENTITY(1,1) PRIMARY KEY,
+    ID_VENTA int NOT NULL,
+    ID_PRODUCTO int NOT NULL,
+    CANTIDAD int NOT NULL,
+    PRECIO_UNITARIO decimal(10,2) NOT NULL,
+    SUBTOTAL decimal(10,2) NOT NULL,
+    CONSTRAINT FK_Detalle_Venta FOREIGN KEY (ID_VENTA) REFERENCES VENTAS_NORM(ID_VENTA),
+    CONSTRAINT FK_Detalle_Producto FOREIGN KEY (ID_PRODUCTO) REFERENCES PRODUCTOS(ID_PRODUCTO)
+);
+
+-- Inserts
+
+-- Empleados
+INSERT INTO EMPLEADOS (NOMBRE, APELLIDO, ESTADO) VALUES 
+('Juan', 'Pérez', 'activo'),
+('Ana', 'López', 'activo'),
+('Pedro', 'Martínez', 'activo'),
+('María', 'García', 'inactivo');
+
+-- Clientes
+INSERT INTO CLIENTES (DNI, NOMBRE, APELLIDO, DIRECCION_ENVIO) VALUES 
+('12345678', 'María', 'González', 'av Corrientes 1234, CABA'),
+('87654321', 'Carlos', 'Rodríguez', 'Belgrano 789, Quilmes'),
+('11223344', 'Lucía', 'Fernández', 'Mitre 456, La Plata'),
+('55667788', 'Roberto', 'Silva', 'San Martín 321, Avellaneda'),
+('99887766', 'Sofía', 'Morales', 'Alsina 654, Quilmes');
+
+-- Sucursales
+INSERT INTO SUCURSALES (NOMBRE, DIRECCION) VALUES 
+('Sucursal Centro', 'San Martín 500, CABA'),
+('Sucursal La Plata', 'Rivadavia 200, La Plata'),
+('Sucursal Quilmes', 'Alsina 100, Quilmes');
+
+-- Productos
+INSERT INTO PRODUCTOS (NOMBRE, PRECIO_UNITARIO) VALUES 
+('Laptop', 1500.50),
+('Mouse', 283.58),
+('Monitor', 1150.00),
+('Teclado', 150.05),
+('Webcam', 600.00);
+
+-- Ventas
+INSERT INTO VENTAS_NORM (FECHA_VENTA, ID_EMPLEADO, ID_CLIENTE, ID_SUCURSAL, IMPORTE_TOTAL) VALUES 
+('2024-10-23 10:30:00', 1, 1, 1, 1500.50),
+('2024-10-23 14:15:00', 2, 2, 1, 850.74),
+('2024-10-22 16:45:00', 3, 3, 2, 2300.00),
+('2024-10-24 09:20:00', 1, 4, 1, 750.25),
+('2024-10-23 11:00:00', 2, 5, 2, 1200.00);
+
+-- Detalle de ventas
+INSERT INTO DETALLE_VENTAS (ID_VENTA, ID_PRODUCTO, CANTIDAD, PRECIO_UNITARIO, SUBTOTAL) VALUES 
+(1, 1, 1, 1500.50, 1500.50),  
+(2, 2, 3, 283.58, 850.74),    
+(3, 3, 2, 1150.00, 2300.00),  
+(4, 4, 5, 150.05, 750.25),    
+(5, 5, 2, 600.00, 1200.00);   
+
+-- Query fecha con mas ventas 
+SELECT TOP 1 
+    CAST(FECHA_VENTA AS DATE) AS Fecha,
+    COUNT(*) AS Cantidad_Ventas,
+	SUM(IMPORTE_TOTAL) AS Total_Ventas
+FROM VENTAS_NORM 
+GROUP BY CAST(FECHA_VENTA AS DATE)
+ORDER BY COUNT(*) DESC;

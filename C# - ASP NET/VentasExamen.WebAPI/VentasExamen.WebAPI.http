@@ -1,0 +1,6 @@
+@VentasExamen.WebAPI_HostAddress = http://localhost:5003
+
+GET {{VentasExamen.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
