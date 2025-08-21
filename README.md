@@ -1,5 +1,7 @@
-# CartaSur - Resolucion
+# CartaSur - Resolución
 
+## Descripción
+Sistema de gestión de ventas desarrollado con ASP.NET Core Web API y Angular. El proyecto incluye una base de datos SQL Server con entidades para empleados, clientes, productos, sucursales y ventas.
 
 ## Estructura del Proyecto
 
@@ -15,6 +17,17 @@
 ### Base de Datos
 - Scripts SQL para la creación de la base de datos
 - Diagrama de la base de datos
+
+## Capturas de Pantalla
+
+### Diagrama de Base de Datos
+![Diagrama de Base de Datos](Base%20de%20datos/diagram_VENTAS_NORM.png)
+
+### Frontend Angular
+![Frontend Angular](Frontend-angular.png)
+
+### Documentación de la API (Swagger)
+![Swagger API Documentation](swagger-index.png)
 
 ## Tecnologías Utilizadas
 - **Backend**: ASP.NET Core 8.0, Entity Framework Core, SQL Server
@@ -51,5 +64,25 @@ Los scripts SQL se encuentran en la carpeta `Base de datos/`:
 - `Punto1.sql` - Creación de tablas
 - `Punto2.sql` - Datos de prueba
 - `Punto3.sql` - Consultas adicionales
+
+## Estructura del Proyecto
+```
+CartaSur/
+├── Base de datos/
+│   ├── diagram_VENTAS_NORM.png
+│   ├── Punto1.sql
+│   ├── Punto2.sql
+│   └── Punto3.sql
+├── C# - ASP NET/
+│   ├── VentasExamen.Domain/
+│   ├── VentasExamen.Application/
+│   ├── VentasExamen.Infrastructure/
+│   └── VentasExamen.WebAPI/
+└── Web y API/
+    └── ventas-app/
+```
+
+## Autor
+Desarrollado para examen técnico de CartaSur.
 
 
